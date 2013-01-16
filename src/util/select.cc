@@ -36,6 +36,40 @@ fd_set Select::dummy_fd_set;
 
 sigset_t Select::dummy_sigset;
 
+/*
+ * Like select(2) but set the signals to block while waiting in
+ * select.  This version is not entirely race condition safe. Only
+ * operating system support can make it so.
+ */
+int
+pselect (int n,
+	 fd_set *readfds,
+	 fd_set *writefds,
+	 fd_set *exceptfds,
+	 const struct timespec *timeout,
+	 const sigset_t *sigmask)
+{
+	int result;
+	sigset_t saved_sigmask;
+	struct timeval saved_timeout;
+
+	if (sigmask && sigprocmask(SIG_SETMASK, sigmask, &saved_sigmask) == -1)
+		return -1;
+
+	if (timeout) {
+		saved_timeout.tv_sec = timeout->tv_sec;
+		saved_timeout.tv_usec = timeout->tv_nsec / 1000;
+		result = select(n, readfds, writefds, exceptfds, &saved_timeout);
+	} else {
+		result = select(n, readfds, writefds, exceptfds, NULL);
+	}
+
+	if (sigmask && sigprocmask(SIG_SETMASK, &saved_sigmask, NULL) == -1)
+		return -1;
+
+	return result;
+}
+
 void Select::handle_signal( int signum )
 {
   fatal_assert( signum >= 0 );

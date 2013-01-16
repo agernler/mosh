@@ -39,6 +39,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <unistd.h>
+#include <sys/uio.h>
 
 #include "dos_assert.h"
 #include "byteorder.h"

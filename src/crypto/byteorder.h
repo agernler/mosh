@@ -35,7 +35,10 @@
 
 #include "config.h"
 
-#ifdef HAVE_HTOBE64
+#if 1
+#define be64toh betoh64
+#define be16toh betoh16
+#include <sys/types.h>
 # if defined(HAVE_ENDIAN_H)
 #  include <endian.h>
 # elif defined(HAVE_SYS_ENDIAN_H)

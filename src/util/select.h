@@ -42,10 +42,25 @@
 #include "fatal_assert.h"
 #include "timestamp.h"
 
+
+#include <config.h>
+
+#include <sys/time.h>
+#include <sys/types.h>
+#ifdef HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#endif
+#include <unistd.h>
+#include <signal.h>
+
 /* Convenience wrapper for pselect(2).
 
    Any signals blocked by calling sigprocmask() outside this code will still be
    received during Select::select().  So don't do that. */
+
+int
+pselect (int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
+	const struct timespec *timeout, const sigset_t *sigmask);
 
 class Select {
 public:
